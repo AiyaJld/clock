@@ -1,56 +1,37 @@
-import pygame, os, datetime
+import pygame as pg
+import datetime
 
-def main():
+pg.init()
 
-    pygame.init()
-    screen = pygame.display.set_mode((800, 600))
-    clock = pygame.time.Clock()
-    pygame.display.set_caption('Mickey Clock')
-    
-    curr_time = datetime.datetime.now()
-    curr_sec = curr_time.second
-    curr_min = curr_time.minute
+screen = pg.display.set_mode((1400, 1050))
+bg = pg.image.load('assets\\ph.png')
+screen.blit(bg,(0,0))
 
+minutes = pg.image.load('assets\\minutes.png')
+orig_minutes = minutes
+rect_minutes = minutes.get_rect()
 
-    clock_image = pygame.transform.scale(pygame.image.load(os.path.join('assets', 'ph.png')), (800, 600))
-    sechand_image = pygame.image.load(os.path.join('assets', 'seconds.png'))
-    sechand_image = pygame.transform.scale(sechand_image, (300, 250))
-    sechand_rect = sechand_image.get_rect()
-    sechand_rect.center = (400, 300)
-    
-    minhand_image = pygame.image.load(os.path.join('assets', 'minutes.png'))
-    minhand_image = pygame.transform.scale(minhand_image, (200, 50))
-    minhand_rect = minhand_image.get_rect()
-    minhand_rect.center = (400, 300)
+seconds = pg.image.load('assets\\seconds.png')
+orig_seconds = seconds
+rect_seconds = seconds.get_rect()
 
+def rotate(hand, rect, angle):
+    new_hand = pg.transform.rotate(hand, angle)
+    rect = new_hand.get_rect(center=rect.center)
+    return new_hand, rect
 
-
-    while True:
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                pygame.quit()
-        screen.fill(0)
-        screen.blit(clock_image, (0, 0))
-    
-        rot_minhand = pygame.transform.rotate(minhand_image, -1 * (6 * curr_min) - 90)
-        rot_minhand_rect = rot_minhand.get_rect()
-        rot_minhand_rect.center = minhand_rect.center
-        screen.blit(rot_minhand, rot_minhand_rect)
-    
-        rot_sechand = pygame.transform.rotate(sechand_image, -1 * (6 * curr_sec) + 90)
-        rot_sechand_rect =rot_sechand.get_rect()
-        rot_sechand_rect.center = sechand_rect.center
-        screen.blit(rot_sechand, rot_sechand_rect)
-
-        curr_time = datetime.datetime.now()
-        curr_sec = curr_time.second
-        curr_min = curr_time.minute
+while 1:
+    for event in pg.event.get():
+        if event.type == pg.QUIT:
+            exit()
+    a = datetime.datetime.now()
+    d = a.microsecond + a.second * (10 ** 6)
+    c = a.minute
+    minutes, rect_minutes = rotate(orig_minutes, rect_minutes, -(c * 6))
+    seconds, rect_seconds = rotate(orig_seconds, rect_seconds, -(d * 0.000006))
         
-        pygame.display.update()
-        clock.tick(60)
-
-
-if __name__ == "__main__":
-    pygame.init()
-    main()
-    pygame.quit()
+    screen.blit(bg,(0,0))
+    screen.blit(minutes, rect_minutes)
+    screen.blit(seconds, rect_seconds)
+    pg.display.flip()
+    
